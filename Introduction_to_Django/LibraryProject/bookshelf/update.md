@@ -6,7 +6,7 @@
 ```python
 from bookshelf.models import Book
 
-b1 = Book.objects.get(title="1984")
-b1.title = "Nineteen Eighty-Four"
-b1.save()
+book = Book.objects.get(title="1984")
+book.title = "Nineteen Eighty-Four"
+book.save()
 Book.objects.all()  # <QuerySet [<Book: Nineteen Eighty-Four by George Orwell (1949)>]>
