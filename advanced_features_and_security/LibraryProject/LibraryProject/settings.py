@@ -137,30 +137,40 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# SECURITY SETTINGS FOR HTTPS
+ # Never leave debug True in production
 DEBUG = False  # Always False in production
 
 ALLOWED_HOSTS = ['yourdomain.com', 'www.yourdomain.com']
 
 # Browser security headers
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
-SECURE_CONTENT_TYPE_NOSNIFF = True
+# XSS & Clickjacking protections
+SECURE_CONTENT_TYPE_NOSNIFF = True  # Prevent MIME type sniffing
+SECURE_BROWSER_XSS_FILTER = True  # Enable browser XSS filter
+X_FRAME_OPTIONS = "DENY"  # Prevent clickjacking
 
 # Cookies over HTTPS only
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
+# Secure cookies
+SESSION_COOKIE_SECURE = True  # Session cookies only sent via HTTPS
+CSRF_COOKIE_SECURE = True  # CSRF cookies only sent via HTTPS
 
 # Additional recommended security settings
-SECURE_HSTS_SECONDS = 3600  # HTTP Strict Transport Security
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-SECURE_SSL_REDIRECT = True  # Redirect HTTP to HTTPS
+# HTTP Strict Transport Security (HSTS)
+SECURE_HSTS_SECONDS = 31536000  # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Apply HSTS to all subdomains
+SECURE_HSTS_PRELOAD = True  # Allow domain to be preloaded by browsers
+SECURE_SSL_REDIRECT = True  # Redirect all HTTP requests to HTTPS
 
 # Content Security Policy (requires django-csp)
 INSTALLED_APPS += ['csp',]
 MIDDLEWARE += ['csp.middleware.CSPMiddleware',]
 
+# Content Security Policy
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "cdnjs.cloudflare.com")
 CSP_STYLE_SRC = ("'self'", "cdnjs.cloudflare.com")
+CSP_IMG_SRC = ("'self'", "data:")
+
+
+
 

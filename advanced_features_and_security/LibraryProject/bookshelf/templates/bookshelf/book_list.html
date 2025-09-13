@@ -3,6 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <title>Book List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+        .actions a {
+            margin-right: 10px;
+        }
+    </style>
 </head>
 <body>
     <h1>Book List</h1>
@@ -12,7 +36,7 @@
         <p><a href="{% url 'book_create' %}">Add New Book</a></p>
     {% endif %}
 
-    <table border="1" cellpadding="5" cellspacing="0">
+    <table>
         <thead>
             <tr>
                 <th>Title</th>
@@ -24,10 +48,12 @@
         <tbody>
             {% for book in books %}
                 <tr>
-                    <td>{{ book.title }}</td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.publication_year }}</td>
                     <td>
+                        <a href="{% url 'book_detail' book.id %}">{{ book.title|escape }}</a>
+                    </td>
+                    <td>{{ book.author|escape }}</td>
+                    <td>{{ book.publication_year }}</td>
+                    <td class="actions">
                         {% if perms.bookshelf.can_edit %}
                             <a href="{% url 'book_edit' book.id %}">Edit</a>
                         {% endif %}
@@ -46,9 +72,9 @@
 
     <!-- Optional: search form -->
     <form method="get" action="{% url 'search_books' %}">
+        {% csrf_token %}
         <input type="text" name="q" placeholder="Search by title" />
         <button type="submit">Search</button>
     </form>
-
 </body>
 </html>
