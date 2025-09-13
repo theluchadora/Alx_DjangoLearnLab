@@ -2,6 +2,21 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 # Create your models here.
+
+"""
+Permissions setup:
+
+Book model has custom permissions:
+    can_view, can_create, can_edit, can_delete
+
+Groups:
+    Admins  -> All permissions
+    Editors -> can_view, can_create, can_edit
+    Viewers -> can_view only
+
+Views are protected using @permission_required decorator.
+"""
+
 class Book(models.Model):
     title=models.CharField(max_length=200)
     author=models.CharField(max_length=100)

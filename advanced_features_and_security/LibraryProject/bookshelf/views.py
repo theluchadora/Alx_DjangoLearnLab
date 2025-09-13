@@ -12,6 +12,7 @@ def book_list(request):
 @login_required
 @permission_required("bookshelf.can_create", raise_exception=True)
 def book_create(request):
+    # Only users with 'can_create' permission can access this view
     if request.method == "POST":
         title = request.POST.get("title")
         author = request.POST.get("author")
@@ -23,6 +24,7 @@ def book_create(request):
 @login_required
 @permission_required("bookshelf.can_edit", raise_exception=True)
 def book_edit(request, book_id):
+    # Only users with 'can_edit' permission can access this view
     book = get_object_or_404(Book, pk=book_id)
     if request.method == "POST":
         book.title = request.POST.get("title")
@@ -35,6 +37,7 @@ def book_edit(request, book_id):
 @login_required
 @permission_required("bookshelf.can_delete", raise_exception=True)
 def book_delete(request, book_id):
+    # Only users with 'can_delete' permission can access this view
     book = get_object_or_404(Book, pk=book_id)
     book.delete()
     return redirect("book_list")
