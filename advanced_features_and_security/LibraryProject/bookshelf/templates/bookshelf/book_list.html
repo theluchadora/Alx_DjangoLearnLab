@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book List</title>
+</head>
+<body>
+    <h1>Book List</h1>
+
+    <!-- Link to create a new book, visible only to users with 'can_create' permission -->
+    {% if perms.bookshelf.can_create %}
+        <p><a href="{% url 'book_create' %}">Add New Book</a></p>
+    {% endif %}
+
+    <table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Publication Year</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+                <tr>
+                    <td>{{ book.title }}</td>
+                    <td>{{ book.author }}</td>
+                    <td>{{ book.publication_year }}</td>
+                    <td>
+                        {% if perms.bookshelf.can_edit %}
+                            <a href="{% url 'book_edit' book.id %}">Edit</a>
+                        {% endif %}
+                        {% if perms.bookshelf.can_delete %}
+                            <a href="{% url 'book_delete' book.id %}">Delete</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No books found.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Optional: search form -->
+    <form method="get" action="{% url 'search_books' %}">
+        <input type="text" name="q" placeholder="Search by title" />
+        <button type="submit">Search</button>
+    </form>
+
+</body>
+</html>

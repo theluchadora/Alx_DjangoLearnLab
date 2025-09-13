@@ -9,17 +9,20 @@ def book_list(request):
     books = Book.objects.all()
     return render(request, "bookshelf/book_list.html", {"books": books})
 
+from .forms import BookForm
+
 @login_required
 @permission_required("bookshelf.can_create", raise_exception=True)
 def book_create(request):
     # Only users with 'can_create' permission can access this view
     if request.method == "POST":
-        title = request.POST.get("title")
-        author = request.POST.get("author")
-        year = request.POST.get("publication_year")
-        Book.objects.create(title=title, author=author, publication_year=year)
-        return redirect("book_list")
-    return render(request, "bookshelf/book_form.html")
+        form = BookForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect("book_list")
+    else:
+        form = BookForm()
+    return render(request, "bookshelf/book_form.html", {"form": form})
 
 @login_required
 @permission_required("bookshelf.can_edit", raise_exception=True)
@@ -27,12 +30,14 @@ def book_edit(request, book_id):
     # Only users with 'can_edit' permission can access this view
     book = get_object_or_404(Book, pk=book_id)
     if request.method == "POST":
-        book.title = request.POST.get("title")
-        book.author = request.POST.get("author")
-        book.publication_year = request.POST.get("publication_year")
-        book.save()
-        return redirect("book_list")
-    return render(request, "bookshelf/book_form.html", {"book": book})
+        form = BookForm(request.POST, instance=book)
+        if form.is_valid():
+            form.save()
+            return redirect("book_list")
+    else:
+        form = BookForm(instance=book)
+    return render(request, "bookshelf/book_form.html", {"form": form})
+
 
 @login_required
 @permission_required("bookshelf.can_delete", raise_exception=True)
@@ -41,4 +46,11 @@ def book_delete(request, book_id):
     book = get_object_or_404(Book, pk=book_id)
     book.delete()
     return redirect("book_list")
+
+@login_required
+def search_books(request):
+    query = request.GET.get('q', '')
+    # Use ORM filter; avoids SQL injection
+    books = Book.objects.filter(title__icontains=query)
+    return render(request, 'bookshelf/book_list.html', {'books': books})
 
