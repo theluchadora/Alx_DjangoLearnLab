@@ -8,7 +8,7 @@ from .serializers import BookSerializer
 class BookList(generics.ListAPIView):
     queryset = Book.objects.all()
     serializer_class = BookSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny] # to open without a token ...overriding the setting default ..no auth required
 
 
 class BookViewSet(viewsets.ModelViewSet):
