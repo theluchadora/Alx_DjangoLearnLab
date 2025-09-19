@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments (assuming each project has its own venv)
+*/venv/
+
+# Django databases
+*/db.sqlite3
+
+# Django migrations (optional)
+*/migrations/*.pyc
+*/migrations/__pycache__/
+
+# VS Code settings
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
