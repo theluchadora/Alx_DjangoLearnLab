@@ -4,6 +4,9 @@ from rest_framework.test import APITestCase
 from .models import Book, Author
 from django.contrib.auth.models import User
 
+# by running this command on terminal ,this is how it is tested
+# python manage.py test api
+
 class BookAPITestCase(APITestCase):
 
     def setUp(self):
