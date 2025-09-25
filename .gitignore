@@ -4,6 +4,7 @@ __pycache__/
 
 # Virtual environments (assuming each project has its own venv)
 */venv/
+*/env/
 
 # Django databases
 */db.sqlite3

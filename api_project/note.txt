@@ -1,0 +1,74 @@
+#using the curl command tying to check for Authorization to see the list of books and to create a book
+but first to get a token 
+
+
+C:\Users\HP>curl -X GET http://127.0.0.1:8000/api/books_all/ -H "Authorization: Token cf956cbea96541da084f3d69a9ba856067d424d8"
+
+[{"id":1,"title":"django for beginners","author":"Tsion Feleke"},{"id":2,"title":"how to be a lady","author":"Rose"},{"id":3,"title":"the jungle","author":"edison bellad"}]
+
+
+C:\Users\HP>curl -X POSTcurl -X POST http://127.0.0.1:8000/api/books_all/ -H "Content-Type: application/json" -H "Authorization: Token YOUR_TOKEN" -d "{\"title\":\"New Book\",\"author\":\"Jane Doe\",\"published_date\":\"2025-01-01\"}" http://127.0.0.1:8000/api/books_all/ -H "Authorization: Token cf956cbea96541da084f3d69a9ba856067d424d8"
+
+{"detail":"Invalid token header. Token string should not contain spaces."}{"detail":"Invalid token header. Token string should not contain spaces."}
+
+
+C:\Users\HP>curl -X POST http://127.0.0.1:8000/api/books_all/ -H "Content-Type: application/json" -H "Authorization: Token cf956cbea96541da084f3d69a9ba856067d424d8" -d "{\"title\":\"New Book\",\"author\":\"Jane Doe\",\"published_date\":\"2025-01-01\"}"
+
+{"id":4,"title":"New Book","author":"Jane Doe"}
+
+
+C:\Users\HP>curl -X GET http://127.0.0.1:8000/api/books_all/ -H "Authorization: Token cf956cbea96541da084f3d69a9ba856067d424d8"
+
+[{"id":1,"title":"django for beginners","author":"Tsion Feleke"},{"id":2,"title":"how to be a lady","author":"Rose"},{"id":3,"title":"the jungle","author":"edison bellad"},{"id":4,"title":"New Book","author":"Jane Doe"}]
+C:\Users\HP>
+
+mac/linux so convert this to window way
+#list all the books(GET)
+curl -H "Authorization: Token abcd1234efgh5678..." http://127.0.0.1:8000/books_all/
+
+#get a single book by id(GET)
+curl -H "Authorization: Token abcd1234efgh5678..." http://127.0.0.1:8000/books_all/1/
+
+#create a new book(POST)
+curl -X POST http://127.0.0.1:8000/books_all/ ^
+     -H "Content-Type: application/json" ^
+     -H "Authorization: Token abcd1234efgh5678..." ^
+     -d "{\"title\":\"New Book\",\"author\":\"John Doe\",\"published_date\":\"2025-09-19\"}"
+
+#update a book(PUT)
+curl -X PUT http://127.0.0.1:8000/books_all/1/ ^
+     -H "Content-Type: application/json" ^
+     -H "Authorization: Token abcd1234efgh5678..." ^
+     -d "{\"title\":\"Updated Title\",\"author\":\"Jane Doe\",\"published_date\":\"2025-09-20\"}"
+#delete a book(DELETE)
+curl -X DELETE http://127.0.0.1:8000/books_all/1/ ^
+     -H "Authorization: Token abcd1234efgh5678..."
+
+
+## to create books from terminal on shell
+----------------------------------------------
+(venv) PS C:\Users\HP\Desktop\collection\Real_Projects\ALX\Alx_DjangoLearnLab\api_project> python manage.py shell
+7 objects imported automatically (use -v 2 for details).
+
+Ctrl click to launch VS Code Native REPL
+Python 3.12.6 (tags/v3.12.6:a4a2d2b, Sep  6 2024, 20:11:23) [MSC v.1940 64 bit (AMD64)] on win32
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from api.models import Book
+>>> 
+>>> Book.objects.create(title = "django for beginners", author = "Tsion Feleke") 
+<Book: django for beginners>
+>>> Book.objects.create(title = "how to be a lady", author = "Rose")
+<Book: how to be a lady>
+>>> Book.objects.all()
+<QuerySet [<Book: django for beginners>, <Book: how to be a lady>]>
+>>> exit()
+
+#to create a user to use for the curl operation and other stuffs
+-------------------------------------------------------------------
+(venv) PS C:\Users\HP\Desktop\collection\Real_Projects\ALX\Alx_DjangoLearnLab\api_project> python manage.py createsuperuser
+Username (leave blank to use 'hp'): admin
+Email address: 
+Password: 
+Password (again):
+Superuser created successfully.
