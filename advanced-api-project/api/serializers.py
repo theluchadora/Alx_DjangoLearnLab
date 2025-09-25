@@ -6,7 +6,7 @@ class BookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Book
-        fiels = ['id', 'title', 'publication_year', 'author']
+        fields = ['id', 'title', 'publication_year', 'author']
     
     #custome validation: publication year must not be in the future
     def validate_publication_year(self, value):
@@ -18,7 +18,7 @@ class BookSerializer(serializers.ModelSerializer):
 
 class AuthorSerializer(serializers.ModelSerializer):
     #nested serializer: shows all the books written by this author 
-    books = BookSerializer(many= True, read_only = True)
+    books = BookSerializer(many=True, read_only=True)
 
     class Meta:
         model = Author
