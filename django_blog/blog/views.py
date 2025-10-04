@@ -98,7 +98,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['post_id']  # post ID from URL
+        form.instance.post_id = self.kwargs['pk']  # post ID from URL
         return super().form_valid(form)
 
 # Update a comment
