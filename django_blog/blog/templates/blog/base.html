@@ -15,6 +15,12 @@
                 {% comment %} <li><a href="{% url 'posts' %}">Blog Posts</a></li> {% endcomment %}
                 <li><a href="{% url 'login' %}">Login</a></li>
                 <li><a href="{% url 'register' %}">Register</a></li>
+                <li>
+                    <form method="GET" action="{% url 'search' %}" class="d-flex">
+                        <input name="q" placeholder="Search posts or tags..." value="{{ request.GET.q|default:'' }}">
+                        <button type="submit">Search</button>
+                    </form>
+                </li>
             </ul>
         </nav>
     </header>

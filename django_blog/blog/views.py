@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from .forms import RegisterForm, ProfileUpdateForm,CommentForm
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Post, Comment
+from .models import Post, Comment, Tag
+from django.utils.text import slugify
 
 # Create your views here.
 def register(request):
@@ -42,6 +43,32 @@ def profile(request):
 # LoginRequiredMixin ensures only logged-in users can create, edit, or delete.
 # UserPassesTestMixin ensures only the post author can edit/delete.
 
+from django.db.models import Q
+from django.views.generic import ListView
+
+#Tag list view & search view
+class TaggedPostListView(ListView):
+    model = Post
+    template_name = 'blog/post_list.html'  # reuse list template
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        slug = self.kwargs.get('tag_slug')
+        tag = get_object_or_404(Tag, slug=slug)
+        return tag.posts.order_by('-published_date')
+
+def search(request):
+    q = request.GET.get('q', '').strip()
+    queryset = Post.objects.none()
+    if q:
+        queryset = Post.objects.filter(
+            Q(title__icontains=q) |
+            Q(content__icontains=q) |
+            Q(tags__name__icontains=q)
+        ).distinct().order_by('-published_date')
+    return render(request, 'blog/search_results.html', {'posts': queryset, 'query': q})
+
 
 # List all posts
 class PostListView(ListView):
@@ -64,7 +91,14 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)  # creates post
+        # handle tags
+        tag_names = form.cleaned_data.get('tags_field', '')
+        self.object.tags.clear()
+        for t in [n.strip() for n in tag_names.split(',') if n.strip()]:
+            tag_obj, _ = Tag.objects.get_or_create(name=t, slug=slugify(t))
+            self.object.tags.add(tag_obj)
+        return response
 
 # Update a post
 class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -73,9 +107,15 @@ class PostUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'blog/post_form.html'
 
     def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
+        response = super().form_valid(form)
+        # same tag handling
+        tag_names = form.cleaned_data.get('tags_field', '')
+        self.object.tags.clear()
+        for t in [n.strip() for n in tag_names.split(',') if n.strip()]:
+            tag_obj, _ = Tag.objects.get_or_create(name=t, slug=slugify(t))
+            self.object.tags.add(tag_obj)
+        return response
+    
     def test_func(self):
         post = self.get_object()
         return self.request.user == post.author
@@ -98,7 +138,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        form.instance.post_id = self.kwargs['pk']  # post ID from URL
+        form.instance.post_id = self.kwargs['pk']  # pk(kinda id) from URL
         return super().form_valid(form)
 
 # Update a comment
