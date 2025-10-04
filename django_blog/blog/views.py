@@ -4,7 +4,9 @@ from .forms import RegisterForm, ProfileUpdateForm,CommentForm
 from django.contrib.auth.decorators import login_required
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from .models import Post, Comment, Tag
+from .models import Post, Comment
+from django.db.models import Q
+from taggit.models import Tag
 from django.utils.text import slugify
 
 # Create your views here.
@@ -47,17 +49,20 @@ from django.db.models import Q
 from django.views.generic import ListView
 
 #Tag list view & search view
+# Tag-specific post list
 class TaggedPostListView(ListView):
     model = Post
-    template_name = 'blog/post_list.html'  # reuse list template
+    template_name = 'blog/post_list.html'  # reuse existing template
     context_object_name = 'posts'
     paginate_by = 10
 
     def get_queryset(self):
-        slug = self.kwargs.get('tag_slug')
-        tag = get_object_or_404(Tag, slug=slug)
-        return tag.posts.order_by('-published_date')
+        tag_slug = self.kwargs.get('tag_slug')
+        # use taggit's Tag model
+        tag = get_object_or_404(Tag, slug=tag_slug)
+        return Post.objects.filter(tags__in=[tag]).order_by('-published_date')
 
+# Search view
 def search(request):
     q = request.GET.get('q', '').strip()
     queryset = Post.objects.none()
@@ -65,7 +70,7 @@ def search(request):
         queryset = Post.objects.filter(
             Q(title__icontains=q) |
             Q(content__icontains=q) |
-            Q(tags__name__icontains=q)
+            Q(tags__name__icontains=q)   # works with taggit tags
         ).distinct().order_by('-published_date')
     return render(request, 'blog/search_results.html', {'posts': queryset, 'query': q})
 
