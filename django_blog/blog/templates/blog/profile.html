@@ -17,6 +17,23 @@
         {% endfor %}
     </ul>
     {% endif %}
+    
+    <h3>Your Posts</h3>
+    <a href="{% url 'post-create' %}" class="btn btn-primary mb-2">Create New Post</a>
+
+    {% if user_posts %}
+        <ul>
+        {% for post in user_posts %}
+            <li>
+                <a href="{% url 'post-detail' post.pk %}">{{ post.title }}</a> |
+                <a href="{% url 'post-update' post.pk %}">Edit</a> |
+                <a href="{% url 'post-delete' post.pk %}">Delete</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't created any posts yet. Click above to create your first post!</p>
+    {% endif %}
     <form method="POST" action="{% url 'logout' %}">
         {% csrf_token %}
         <button type="submit">Logout</button>

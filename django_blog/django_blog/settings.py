@@ -69,7 +69,7 @@ TEMPLATES = [
 
 LOGIN_REDIRECT_URL = 'profile'  # or any page you want
 LOGIN_URL = '/login/' # redirect here if user is not logged in
-# LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
 
 WSGI_APPLICATION = 'django_blog.wsgi.application'
 
