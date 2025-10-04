@@ -50,7 +50,7 @@ from django.views.generic import ListView
 
 #Tag list view & search view
 # Tag-specific post list
-class TaggedPostListView(ListView):
+class PostByTagListView(ListView):
     model = Post
     template_name = 'blog/post_list.html'  # reuse existing template
     context_object_name = 'posts'
@@ -61,6 +61,7 @@ class TaggedPostListView(ListView):
         # use taggit's Tag model
         tag = get_object_or_404(Tag, slug=tag_slug)
         return Post.objects.filter(tags__in=[tag]).order_by('-published_date')
+    
 
 # Search view
 def search(request):
