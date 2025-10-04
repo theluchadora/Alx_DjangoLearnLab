@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .models import Comment, Post
+from taggit.forms import TagWidget
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -26,19 +27,11 @@ class CommentForm(forms.ModelForm):
         fields = ['content']
 
 
-class PostForm(forms.ModelForm):
-    tags_field = forms.CharField(
-        required=False,
-        help_text='Separate tags with commas (e.g. django, python)',
-        widget=forms.TextInput()
-    )
 
+class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'tags_field']
-
-    def __init__(self, *args, **kwargs):
-        # If editing existing post, populate tags_field with existing tags
-        super().__init__(*args, **kwargs)
-        if self.instance.pk:
-            self.fields['tags_field'].initial = ', '.join(t.name for t in self.instance.tags.all())
+        fields = ['title', 'content', 'tags']
+        widgets = {
+            'tags': TagWidget(),
+        }
