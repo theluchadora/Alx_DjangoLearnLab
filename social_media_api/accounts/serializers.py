@@ -14,13 +14,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'password']
 
     def create(self, validated_data):
-        user = User(
+        user = get_user_model().objects.create_user(
             username=validated_data['username'],
-            email=validated_data.get('email', '')
+            email=validated_data.get('email', ''),
+            password=validated_data['password']
         )
-        user.set_password(validated_data['password'])
-        user.save()
-        Token.objects.create(user=user)  # create token automatically
+        Token.objects.create(user=user)
         return user
 
 
