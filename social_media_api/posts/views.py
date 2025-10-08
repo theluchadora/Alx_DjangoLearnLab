@@ -43,20 +43,18 @@ class FeedView(generics.GenericAPIView):
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
-class LikePostView(APIView):
+class LikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = generics.get_object_or_404(Post, pk=pk)
 
         like, created = Like.objects.get_or_create(user=request.user, post=post)
-        if not created:
-            return Response({'detail': 'You already liked this post'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # create notification
+        if not created:
+            return Response({'detail': 'You already liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create notification for post owner (optional)
         if post.author != request.user:
             Notification.objects.create(
                 recipient=post.author,
@@ -65,21 +63,18 @@ class LikePostView(APIView):
                 target=post
             )
 
-        return Response({'detail': 'Post liked'}, status=status.HTTP_200_OK)
+        return Response({'detail': 'Post liked successfully.'}, status=status.HTTP_201_CREATED)
 
 
-class UnlikePostView(APIView):
+class UnlikePostView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, pk):
-        try:
-            post = Post.objects.get(pk=pk)
-        except Post.DoesNotExist:
-            return Response({'error': 'Post not found'}, status=status.HTTP_404_NOT_FOUND)
+        post = generics.get_object_or_404(Post, pk=pk)
 
-        like = Like.objects.filter(user=request.user, post=post)
-        if like.exists():
+        try:
+            like = Like.objects.get(user=request.user, post=post)
             like.delete()
-            return Response({'detail': 'Post unliked'}, status=status.HTTP_200_OK)
-        else:
-            return Response({'detail': 'You have not liked this post'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'detail': 'Post unliked successfully.'}, status=status.HTTP_200_OK)
+        except Like.DoesNotExist:
+            return Response({'detail': 'You have not liked this post.'}, status=status.HTTP_400_BAD_REQUEST)
