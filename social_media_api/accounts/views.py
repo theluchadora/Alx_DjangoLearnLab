@@ -1,8 +1,8 @@
-from rest_framework import generics, status
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import RegisterSerializer, LoginSerializer, ProfileSerializer
-from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -29,43 +29,18 @@ class ProfileView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         return self.request.user
     
+class FollowUserView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def follow_user(request, user_id):
-    """Current user follows target user."""
-    if request.user.id == user_id:
-        return Response({'detail': "You cannot follow yourself."}, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, user_id):
+        user_to_follow = get_object_or_404(User.objects.all(), id=user_id)
+        request.user.following.add(user_to_follow)
+        return Response({"message": f"You are now following {user_to_follow.username}"}, status=status.HTTP_200_OK)
 
-    try:
-        target = User.objects.get(pk=user_id)
-    except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+class UnfollowUserView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
 
-    # Add target to the current user's following set (reverse accessor)
-    request.user.following.add(target)   # request.user.following exists because related_name='following'
-    return Response({
-        'detail': f'You are now following {target.username}.',
-        'followers_count': target.followers.count(),
-        'following_count': request.user.following.count()
-    }, status=status.HTTP_200_OK)
-
-
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def unfollow_user(request, user_id):
-    """Current user unfollows target user."""
-    if request.user.id == user_id:
-        return Response({'detail': "You cannot unfollow yourself."}, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        target = User.objects.get(pk=user_id)
-    except User.DoesNotExist:
-        return Response({'detail': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-    request.user.following.remove(target)
-    return Response({
-        'detail': f'You have unfollowed {target.username}.',
-        'followers_count': target.followers.count(),
-        'following_count': request.user.following.count()
-    }, status=status.HTTP_200_OK)
+    def post(self, request, user_id):
+        user_to_unfollow = get_object_or_404(User.objects.all(), id=user_id)
+        request.user.following.remove(user_to_unfollow)
+        return Response({"message": f"You have unfollowed {user_to_unfollow.username}"}, status=status.HTTP_200_OK)
