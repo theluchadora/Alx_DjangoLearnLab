@@ -155,6 +155,21 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+
+# This is the directory where collectstatic will put all static files
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# (it is Optional but) additional directories Django will look for static files in
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+
+# Media files (user uploads)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
